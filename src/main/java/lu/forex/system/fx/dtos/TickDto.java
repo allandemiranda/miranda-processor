@@ -13,8 +13,8 @@ import lu.forex.system.fx.enums.Symbol;
 /**
  * DTO for {@link lu.forex.system.fx.models.Tick}
  */
-public record TickDto(@NotNull UUID id, @NotNull Symbol symbol, @NotNull LocalDateTime timestamp, @NotNull @Positive BigDecimal bid, @NotNull @Positive BigDecimal ask,
-                      @NotNull @NegativeOrZero BigDecimal spread) implements Serializable {
+public record TickDto(UUID id, @NotNull Symbol symbol, @NotNull LocalDateTime timestamp, @NotNull @Positive BigDecimal bid, @NotNull @Positive BigDecimal ask,
+                      @NegativeOrZero BigDecimal spread) implements Serializable {
 
   @Serial
   private static final long serialVersionUID = -7183218897964538485L;

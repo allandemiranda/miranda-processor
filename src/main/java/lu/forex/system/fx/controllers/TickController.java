@@ -28,7 +28,7 @@ public class TickController implements TickRequests {
   public String updateTickAndGetOpenPosition(final @NonNull TickDto currentTick) {
     final TickDto lastTickDto = this.getTickProvider().getLastTick(currentTick.symbol());
     if (lastTickDto.timestamp().isBefore(currentTick.timestamp())) {
-      return this.getCandlestickProvider().getCandlesticks(currentTick).stream()
+      final String mt5Answer = this.getCandlestickProvider().getCandlesticks(currentTick).stream()
           .map(candlestickDto -> Pair.of(candlestickDto.signalIndicator(), this.getTradeProvider().getTrade(candlestickDto)))
           .filter(signalIndicatorOptionalPair -> signalIndicatorOptionalPair.getSecond().isPresent()).map(signalIndicatorOptionalPair -> {
             final SignalIndicator signalIndicator = signalIndicatorOptionalPair.getFirst();
@@ -43,8 +43,15 @@ public class TickController implements TickRequests {
               return a.concat(",").concat(b);
             }
           });
+      this.getTickProvider().updateTickData(currentTick);
+      return mt5Answer;
     } else {
       throw new TickTimestampOlderException(currentTick.timestamp(), currentTick.symbol().name());
     }
+  }
+
+  @Override
+  public TickDto createTick(final TickDto currentTick) {
+    return this.getTickProvider().insertInitTick(currentTick);
   }
 }

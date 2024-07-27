@@ -35,4 +35,11 @@ public class TickService implements TickProvider {
     this.getTickRepository().save(current);
   }
 
+  @Override
+  public TickDto insertInitTick(final TickDto currentTick) {
+    final Tick tick = this.getTickMapper().toEntity(currentTick);
+    final Tick newTick = this.getTickRepository().save(tick);
+    return this.getTickMapper().toDto(newTick);
+  }
+
 }

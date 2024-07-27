@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lu.forex.system.fx.dtos.CandlestickDto;
+import lu.forex.system.fx.dtos.InitCandlestickDto;
 import lu.forex.system.fx.dtos.TickDto;
 import lu.forex.system.fx.enums.SignalIndicator;
 import lu.forex.system.fx.enums.Symbol;
@@ -52,6 +53,13 @@ public class CandlestickService implements CandlestickProvider {
       return this.calculateIndicators(timeFrame, symbol);
     }).filter(candlestick -> !SignalIndicator.NEUTRAL.equals(candlestick.getSignalIndicator())).map(this.getCandlestickMapper()::toDto).toList();
 
+  }
+
+  @Override
+  public InitCandlestickDto insertInitCandlestick(final InitCandlestickDto initCandlestickDto) {
+    final Candlestick candlestick = this.getCandlestickMapper().toEntity(initCandlestickDto);
+    final Candlestick savedCandlestick = this.getCandlestickRepository().save(candlestick);
+    return this.getCandlestickMapper().toDto1(savedCandlestick);
   }
 
   private @NonNull Candlestick calculateIndicators(final @NonNull TimeFrame timeFrame, final @NonNull Symbol symbol) {
