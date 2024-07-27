@@ -6,11 +6,11 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum SignalIndicator {
-  BULLISH(OrderType.BUY), BEARISH(OrderType.SELL), NEUTRAL(null);
+  BULLISH(OrderType.BUY), BEARISH(OrderType.SELL), NEUTRAL(OrderType.NOTHING);
 
   final OrderType orderType;
 
   public enum OrderType {
-    BUY, SELL
+    BUY, SELL, NOTHING
   }
 }

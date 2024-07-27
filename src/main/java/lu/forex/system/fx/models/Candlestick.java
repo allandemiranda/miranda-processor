@@ -4,6 +4,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,9 +28,7 @@ import lombok.ToString;
 import lu.forex.system.fx.enums.SignalIndicator;
 import lu.forex.system.fx.enums.Symbol;
 import lu.forex.system.fx.enums.TimeFrame;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.proxy.HibernateProxy;
-import org.hibernate.type.SqlTypes;
 
 @Getter
 @Setter
@@ -46,23 +45,21 @@ public class Candlestick implements Serializable {
   @NotNull
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id", nullable = false, unique = true, updatable = false)
-  @JdbcTypeCode(SqlTypes.UUID)
   private UUID id;
 
   @NotNull
-  @Enumerated
+  @Enumerated(EnumType.STRING)
   @Column(name = "symbol", nullable = false, updatable = false)
   private Symbol symbol;
 
   @NotNull
-  @Enumerated
+  @Enumerated(EnumType.STRING)
   @Column(name = "time_frame", nullable = false, updatable = false)
   private TimeFrame timeFrame;
 
   @NotNull
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "timestamp", nullable = false, updatable = false)
-  @JdbcTypeCode(SqlTypes.TIMESTAMP)
   private LocalDateTime timestamp;
 
   @NotNull
@@ -81,7 +78,7 @@ public class Candlestick implements Serializable {
   private RelativeStrengthIndex rsi;
 
   @NotNull
-  @Enumerated
+  @Enumerated(EnumType.STRING)
   @Column(name = "signal_indicator", nullable = false)
   private SignalIndicator signalIndicator;
 
@@ -94,8 +91,7 @@ public class Candlestick implements Serializable {
       return false;
     }
     Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-    Class<?> thisEffectiveClass =
-        this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+    Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
     if (thisEffectiveClass != oEffectiveClass) {
       return false;
     }

@@ -2,6 +2,7 @@ package lu.forex.system.fx.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -43,16 +44,15 @@ public class Trade implements Serializable {
   @NotNull
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id", nullable = false, unique = true, updatable = false)
-  @JdbcTypeCode(SqlTypes.UUID)
   private UUID id;
 
   @NotNull
-  @Enumerated
+  @Enumerated(EnumType.STRING)
   @Column(name = "symbol", nullable = false, updatable = false)
   private Symbol symbol;
 
   @NotNull
-  @Enumerated
+  @Enumerated(EnumType.STRING)
   @Column(name = "time_frame", nullable = false, updatable = false)
   private TimeFrame timeFrame;
 
@@ -66,7 +66,7 @@ public class Trade implements Serializable {
   @JdbcTypeCode(SqlTypes.INTEGER)
   private int takeProfit;
 
-  @Enumerated
+  @Enumerated(EnumType.STRING)
   @Column(name = "slot_week", nullable = false, updatable = false)
   private DayOfWeek slotWeek;
 
@@ -89,8 +89,7 @@ public class Trade implements Serializable {
       return false;
     }
     Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-    Class<?> thisEffectiveClass =
-        this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+    Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
     if (thisEffectiveClass != oEffectiveClass) {
       return false;
     }

@@ -2,6 +2,7 @@ package lu.forex.system.fx.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,9 +25,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lu.forex.system.fx.enums.Symbol;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.proxy.HibernateProxy;
-import org.hibernate.type.SqlTypes;
 
 @Getter
 @Setter
@@ -43,18 +42,16 @@ public class Tick implements Serializable {
   @NotNull
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id", nullable = false, unique = true, updatable = false)
-  @JdbcTypeCode(SqlTypes.UUID)
   private UUID id;
 
   @NotNull
-  @Enumerated
+  @Enumerated(EnumType.STRING)
   @Column(name = "symbol", nullable = false, updatable = false)
   private Symbol symbol;
 
   @NotNull
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "timestamp", nullable = false)
-  @JdbcTypeCode(SqlTypes.TIMESTAMP)
   private LocalDateTime timestamp;
 
   @NotNull
@@ -83,8 +80,7 @@ public class Tick implements Serializable {
       return false;
     }
     Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-    Class<?> thisEffectiveClass =
-        this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+    Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
     if (thisEffectiveClass != oEffectiveClass) {
       return false;
     }

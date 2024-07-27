@@ -2,6 +2,7 @@ package lu.forex.system.fx.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,9 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lu.forex.system.fx.enums.SignalIndicator;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.proxy.HibernateProxy;
-import org.hibernate.type.SqlTypes;
 
 @Getter
 @Setter
@@ -29,43 +28,41 @@ import org.hibernate.type.SqlTypes;
 @Table(name = "rsi")
 public class RelativeStrengthIndex implements Serializable {
 
-  @Serial
-  private static final long serialVersionUID = 2820716796228647965L;
-
   public static final int PERIOD = 14;
   public static final BigDecimal OVERBOUGHT = BigDecimal.valueOf(70.0);
   public static final BigDecimal OVERSOLD = BigDecimal.valueOf(30.0);
+  @Serial
+  private static final long serialVersionUID = 2820716796228647965L;
 
   @Id
   @NotNull
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id", nullable = false, unique = true, updatable = false)
-  @JdbcTypeCode(SqlTypes.UUID)
   private UUID id;
 
   @NotNull
-  @Enumerated
+  @Enumerated(EnumType.STRING)
   @Column(name = "signal_indicator", nullable = false)
   private SignalIndicator signalIndicator;
 
   @PositiveOrZero
-  @Column(name = "key_adx", precision = 40, scale = 30)
+  @Column(name = "key_gain", precision = 40, scale = 30)
   private BigDecimal keyGain;
 
   @PositiveOrZero
-  @Column(name = "key_adx", precision = 40, scale = 30)
+  @Column(name = "key_loss", precision = 40, scale = 30)
   private BigDecimal keyLoss;
 
   @PositiveOrZero
-  @Column(name = "key_adx", precision = 40, scale = 30)
+  @Column(name = "key_rsi", precision = 40, scale = 30)
   private BigDecimal keyRsi;
 
   @PositiveOrZero
-  @Column(name = "key_adx", precision = 40, scale = 30)
+  @Column(name = "key_average_gain", precision = 40, scale = 30)
   private BigDecimal keyAverageGain;
 
   @PositiveOrZero
-  @Column(name = "key_adx", precision = 40, scale = 30)
+  @Column(name = "key_average_loss", precision = 40, scale = 30)
   private BigDecimal keyAverageLoss;
 
   @Override
@@ -77,8 +74,7 @@ public class RelativeStrengthIndex implements Serializable {
       return false;
     }
     Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-    Class<?> thisEffectiveClass =
-        this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+    Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
     if (thisEffectiveClass != oEffectiveClass) {
       return false;
     }
