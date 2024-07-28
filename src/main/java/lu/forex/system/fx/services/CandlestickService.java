@@ -56,7 +56,7 @@ public class CandlestickService implements CandlestickProvider {
   }
 
   @Override
-  public InitCandlestickDto insertInitCandlestick(final InitCandlestickDto initCandlestickDto) {
+  public InitCandlestickDto insertInitCandlestick(final @NonNull InitCandlestickDto initCandlestickDto) {
     final Candlestick candlestick = this.getCandlestickMapper().toEntity(initCandlestickDto);
     final Candlestick savedCandlestick = this.getCandlestickRepository().save(candlestick);
     return this.getCandlestickMapper().toDto1(savedCandlestick);
@@ -72,7 +72,8 @@ public class CandlestickService implements CandlestickProvider {
 
     final Candlestick currentCandlestick = candlesticks[0];
     final Candlestick lastCandlestick = candlesticks[1];
-    if(currentCandlestick.getAdx().getSignalIndicator().equals(currentCandlestick.getRsi().getSignalIndicator()) && !lastCandlestick.getSignalIndicator().equals(currentCandlestick.getAdx().getSignalIndicator())) {
+    if (currentCandlestick.getAdx().getSignalIndicator().equals(currentCandlestick.getRsi().getSignalIndicator()) && !lastCandlestick.getSignalIndicator()
+        .equals(currentCandlestick.getAdx().getSignalIndicator())) {
       currentCandlestick.setSignalIndicator(currentCandlestick.getAdx().getSignalIndicator());
     } else {
       currentCandlestick.setSignalIndicator(SignalIndicator.NEUTRAL);
