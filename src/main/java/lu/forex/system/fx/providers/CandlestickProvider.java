@@ -10,6 +10,6 @@ public interface CandlestickProvider {
 
   @NonNull
   @Transactional()
-  Collection<CandlestickDto> getCandlesticks(final @NonNull TickDto currentTick);
+  Collection<CandlestickDto> updateAndGetCandlesticksNotNeutral(final @NonNull TickDto currentTick);
 
 }

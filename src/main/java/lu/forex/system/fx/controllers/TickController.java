@@ -7,8 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lu.forex.system.fx.dtos.TickDto;
 import lu.forex.system.fx.dtos.TradeDto;
 import lu.forex.system.fx.enums.SignalIndicator;
+import lu.forex.system.fx.enums.SignalIndicator.OrderType;
 import lu.forex.system.fx.exceptions.TickTimestampOlderException;
 import lu.forex.system.fx.providers.CandlestickProvider;
+import lu.forex.system.fx.providers.OpenPositionProvider;
 import lu.forex.system.fx.providers.TickProvider;
 import lu.forex.system.fx.providers.TradeProvider;
 import lu.forex.system.fx.requests.TickRequests;
@@ -23,17 +25,20 @@ public class TickController implements TickRequests {
   private final TickProvider tickProvider;
   private final CandlestickProvider candlestickProvider;
   private final TradeProvider tradeProvider;
+  private final OpenPositionProvider openPositionProvider;
 
   @Override
   public String updateTickAndGetOpenPosition(final @NonNull TickDto currentTick) {
     final TickDto lastTickDto = this.getTickProvider().getLastTick(currentTick.symbol());
     if (lastTickDto.timestamp().isBefore(currentTick.timestamp())) {
-      final String mt5Answer = this.getCandlestickProvider().getCandlesticks(currentTick).stream()
+      final String mt5Answer = this.getCandlestickProvider().updateAndGetCandlesticksNotNeutral(currentTick).stream()
           .map(candlestickDto -> Pair.of(candlestickDto.signalIndicator(), this.getTradeProvider().getTrade(candlestickDto)))
           .filter(signalIndicatorOptionalPair -> signalIndicatorOptionalPair.getSecond().isPresent()).map(signalIndicatorOptionalPair -> {
             final SignalIndicator signalIndicator = signalIndicatorOptionalPair.getFirst();
             final TradeDto trade = signalIndicatorOptionalPair.getSecond().get();
-            // ADD A table with the trades open
+            this.getOpenPositionProvider()
+                .addOpenPosition(trade.id(), signalIndicator.getOrderType(), signalIndicator.getOrderType().equals(OrderType.BUY) ? currentTick.bid() : currentTick.ask(),
+                    currentTick.timestamp());
             return String.format("%s %s %s %s %s", currentTick.timestamp(), trade.timeFrame(), signalIndicator.getOrderType().name(), trade.takeProfit(), trade.stopLoss());
           }).reduce("", (a, b) -> {
             if (a.isEmpty()) {

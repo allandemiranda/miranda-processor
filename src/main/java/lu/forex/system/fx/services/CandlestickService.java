@@ -36,7 +36,7 @@ public class CandlestickService implements CandlestickProvider {
   private final CandlestickMapper candlestickMapper;
 
   @Override
-  public @NonNull Collection<CandlestickDto> getCandlesticks(final @NonNull TickDto currentTick) {
+  public @NonNull Collection<CandlestickDto> updateAndGetCandlesticksNotNeutral(final @NonNull TickDto currentTick) {
     return Arrays.stream(TimeFrame.values()).map(timeFrame -> {
       final LocalDateTime candlestickTimestamp = TimeFrameUtils.getCandlestickTimestamp(currentTick.timestamp(), timeFrame);
       final BigDecimal price = currentTick.bid();
@@ -45,12 +45,14 @@ public class CandlestickService implements CandlestickProvider {
       final Optional<Candlestick> optionalCandlestick = this.getCandlestickRepository().getFirstBySymbolAndTimeFrameAndTimestamp(symbol, timeFrame, candlestickTimestamp);
       if (optionalCandlestick.isPresent()) {
         this.updateCandlestickPrice(optionalCandlestick.get(), price);
+        this.calculateIndicators(timeFrame, symbol);
+        return null;
       } else {
         this.updateTableSize(symbol, timeFrame);
         this.createNewCandlestick(symbol, timeFrame, candlestickTimestamp, price);
+        return this.calculateIndicators(timeFrame, symbol);
       }
-      return this.calculateIndicators(timeFrame, symbol);
-    }).filter(candlestick -> !SignalIndicator.NEUTRAL.equals(candlestick.getSignalIndicator())).map(this.getCandlestickMapper()::toDto).toList();
+    }).filter(Objects::nonNull).filter(candlestick -> !SignalIndicator.NEUTRAL.equals(candlestick.getSignalIndicator())).map(this.getCandlestickMapper()::toDto).toList();
 
   }
 
