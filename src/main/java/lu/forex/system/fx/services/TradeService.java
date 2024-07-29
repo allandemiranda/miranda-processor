@@ -9,12 +9,10 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lu.forex.system.fx.dtos.CandlestickDto;
-import lu.forex.system.fx.dtos.InitTradeDto;
 import lu.forex.system.fx.dtos.TradeDto;
 import lu.forex.system.fx.enums.Symbol;
 import lu.forex.system.fx.enums.TimeFrame;
 import lu.forex.system.fx.mappers.TradeMapper;
-import lu.forex.system.fx.models.Trade;
 import lu.forex.system.fx.providers.TradeProvider;
 import lu.forex.system.fx.repository.TradeRepository;
 import org.springframework.stereotype.Service;
@@ -34,12 +32,5 @@ public class TradeService implements TradeProvider {
     final DayOfWeek dayOfWeek = candlestickDto.timestamp().getDayOfWeek();
     final LocalTime timestamp = candlestickDto.timestamp().toLocalTime();
     return this.getTradeRepository().getTrade(symbol, timeFrame, dayOfWeek, timestamp).map(this.getTradeMapper()::toDto);
-  }
-
-  @Override
-  public InitTradeDto initTrade(final InitTradeDto initTradeDto) {
-    final Trade trade = this.getTradeMapper().toEntity(initTradeDto);
-    final Trade savedTrade = this.getTradeRepository().save(trade);
-    return this.getTradeMapper().toDto1(trade);
   }
 }

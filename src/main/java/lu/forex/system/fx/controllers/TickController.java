@@ -33,6 +33,7 @@ public class TickController implements TickRequests {
           .filter(signalIndicatorOptionalPair -> signalIndicatorOptionalPair.getSecond().isPresent()).map(signalIndicatorOptionalPair -> {
             final SignalIndicator signalIndicator = signalIndicatorOptionalPair.getFirst();
             final TradeDto trade = signalIndicatorOptionalPair.getSecond().get();
+            // ADD A table with the trades open
             return String.format("%s %s %s %s %s", currentTick.timestamp(), trade.timeFrame(), signalIndicator.getOrderType().name(), trade.takeProfit(), trade.stopLoss());
           }).reduce("", (a, b) -> {
             if (a.isEmpty()) {
@@ -48,10 +49,5 @@ public class TickController implements TickRequests {
     } else {
       throw new TickTimestampOlderException(currentTick.timestamp(), currentTick.symbol().name());
     }
-  }
-
-  @Override
-  public TickDto createTick(final TickDto currentTick) {
-    return this.getTickProvider().insertInitTick(currentTick);
   }
 }

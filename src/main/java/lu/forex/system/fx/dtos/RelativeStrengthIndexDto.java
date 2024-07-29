@@ -11,7 +11,7 @@ import lu.forex.system.fx.enums.SignalIndicator;
 /**
  * DTO for {@link lu.forex.system.fx.models.RelativeStrengthIndex}
  */
-public record RelativeStrengthIndexDto(@NotNull UUID id, @NotNull SignalIndicator signalIndicator, @PositiveOrZero BigDecimal keyGain, @PositiveOrZero BigDecimal keyLoss,
+public record RelativeStrengthIndexDto(UUID id, @NotNull SignalIndicator signalIndicator, @PositiveOrZero BigDecimal keyGain, @PositiveOrZero BigDecimal keyLoss,
                                        @PositiveOrZero BigDecimal keyRsi, @PositiveOrZero BigDecimal keyAverageGain, @PositiveOrZero BigDecimal keyAverageLoss) implements
     Serializable {
   @Serial

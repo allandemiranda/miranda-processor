@@ -11,7 +11,7 @@ import lu.forex.system.fx.enums.SignalIndicator;
 /**
  * DTO for {@link lu.forex.system.fx.models.AverageDirectionalIndex}
  */
-public record AverageDirectionalIndexDto(@NotNull UUID id, @NotNull SignalIndicator signalIndicator, @PositiveOrZero BigDecimal keyAdx, @PositiveOrZero BigDecimal keyPDiP,
+public record AverageDirectionalIndexDto(UUID id, @NotNull SignalIndicator signalIndicator, @PositiveOrZero BigDecimal keyAdx, @PositiveOrZero BigDecimal keyPDiP,
                                          @PositiveOrZero BigDecimal keyNDiP, @PositiveOrZero BigDecimal keyTr1, @PositiveOrZero BigDecimal keyPDm1, @PositiveOrZero BigDecimal keyNDm1,
                                          @PositiveOrZero BigDecimal keyDx) implements
     Serializable {

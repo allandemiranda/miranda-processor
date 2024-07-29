@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lu.forex.system.fx.dtos.CandlestickDto;
-import lu.forex.system.fx.dtos.InitCandlestickDto;
 import lu.forex.system.fx.dtos.TickDto;
 import lu.forex.system.fx.enums.SignalIndicator;
 import lu.forex.system.fx.enums.Symbol;
@@ -55,13 +54,6 @@ public class CandlestickService implements CandlestickProvider {
 
   }
 
-  @Override
-  public InitCandlestickDto insertInitCandlestick(final @NonNull InitCandlestickDto initCandlestickDto) {
-    final Candlestick candlestick = this.getCandlestickMapper().toEntity(initCandlestickDto);
-    final Candlestick savedCandlestick = this.getCandlestickRepository().save(candlestick);
-    return this.getCandlestickMapper().toDto1(savedCandlestick);
-  }
-
   private @NonNull Candlestick calculateIndicators(final @NonNull TimeFrame timeFrame, final @NonNull Symbol symbol) {
     final Candlestick[] candlesticks = this.getCandlestickRepository().findBySymbolAndTimeFrameOrderByTimestampDesc(symbol, timeFrame).toArray(Candlestick[]::new);
 
@@ -72,8 +64,8 @@ public class CandlestickService implements CandlestickProvider {
 
     final Candlestick currentCandlestick = candlesticks[0];
     final Candlestick lastCandlestick = candlesticks[1];
-    if (currentCandlestick.getAdx().getSignalIndicator().equals(currentCandlestick.getRsi().getSignalIndicator()) && !lastCandlestick.getSignalIndicator()
-        .equals(currentCandlestick.getAdx().getSignalIndicator())) {
+    final SignalIndicator realLastSignalIndicator = lastCandlestick.getAdx().getSignalIndicator().equals(lastCandlestick.getRsi().getSignalIndicator()) ? lastCandlestick.getAdx().getSignalIndicator() : SignalIndicator.NEUTRAL;
+    if (currentCandlestick.getAdx().getSignalIndicator().equals(currentCandlestick.getRsi().getSignalIndicator()) && !realLastSignalIndicator.equals(currentCandlestick.getAdx().getSignalIndicator())) {
       currentCandlestick.setSignalIndicator(currentCandlestick.getAdx().getSignalIndicator());
     } else {
       currentCandlestick.setSignalIndicator(SignalIndicator.NEUTRAL);

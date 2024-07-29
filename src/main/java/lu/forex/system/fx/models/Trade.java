@@ -13,8 +13,10 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Negative;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.Objects;
@@ -79,6 +81,28 @@ public class Trade implements Serializable {
   @Column(name = "slot_end", nullable = false, updatable = false)
   @JdbcTypeCode(SqlTypes.TIME)
   private LocalTime slotEnd;
+
+  @PositiveOrZero
+  @Column(name = "orders_total", nullable = false, updatable = false)
+  private long ordersTotal;
+
+  @PositiveOrZero
+  @Column(name = "take_profit_total", nullable = false, updatable = false)
+  private long takeProfitTotal;
+
+  @PositiveOrZero
+  @Column(name = "stop_loss_total", nullable = false, updatable = false)
+  private long stopLossTotal;
+
+  @NonNull
+  @PositiveOrZero
+  @Column(name = "hit_percentage", nullable = false, updatable = false)
+  private BigDecimal hitPercentage;
+
+  @NonNull
+  @PositiveOrZero
+  @Column(name = "profit_total", nullable = false, updatable = false)
+  private BigDecimal profitTotal;
 
   @Override
   public final boolean equals(final Object o) {

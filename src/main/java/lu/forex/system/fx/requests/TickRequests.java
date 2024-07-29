@@ -3,7 +3,6 @@ package lu.forex.system.fx.requests;
 import jakarta.validation.Valid;
 import lu.forex.system.fx.dtos.TickDto;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +15,4 @@ public interface TickRequests {
   @ResponseStatus(HttpStatus.OK)
   String updateTickAndGetOpenPosition(final @RequestBody @Valid TickDto currentTick);
 
-  @PostMapping()
-  @ResponseStatus(HttpStatus.CREATED)
-  TickDto createTick(final @RequestBody @Valid TickDto currentTick);
 }
