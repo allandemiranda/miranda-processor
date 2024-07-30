@@ -50,11 +50,25 @@ public class PreProcessor {
         .filter(file -> Arrays.stream(Symbol.values()).anyMatch(symbol -> symbol.name().equals(file.getName().split("_")[0])))
         .flatMap(inputFile -> Arrays.stream(TimeFrame.values()).parallel().map(timeFrame -> {
           final Symbol symbol = Symbol.valueOf(inputFile.getName().split("_")[0]);
-          final Tick lastTick = lastTickMemoryExternalizing(inputFile);
-          final Collection<Candlestick> memoryCandlesticks = CandlestickService.getCandlesticksMemory(inputFile, timeFrame, symbol);
-          final List<lu.forex.system.fx.models.Candlestick> candlesticksMemory = memoryCandlesticks.stream().map(candlestick -> getCandlestickToFx(candlestick, symbol, timeFrame)).toList();
-          final lu.forex.system.fx.models.Tick tickToFx = getTickToFx(lastTick, symbol);
-          return new Externalizing(candlesticksMemory, tickToFx);
+
+          final AtomicReference<Tick> lastTick = new AtomicReference<Tick>();
+          final AtomicReference<List<lu.forex.system.fx.models.Candlestick>> candlesticksMemory = new AtomicReference<>();
+
+          final Runnable lastTickRunnable = () -> lastTick.set(lastTickMemoryExternalizing(inputFile));
+          final Runnable candlesticksMemoryRunnable = () -> {
+            final Collection<Candlestick> memoryCandlesticks = CandlestickService.getCandlesticksMemory(inputFile, timeFrame, symbol);
+            candlesticksMemory.set(memoryCandlesticks.stream().map(candlestick -> getCandlestickToFx(candlestick, symbol, timeFrame)).toList());
+          };
+          Stream.of(lastTickRunnable, candlesticksMemoryRunnable).parallel().map(Thread::new).peek(Thread::start).forEach(thread -> {
+            try {
+              thread.join();
+            } catch (InterruptedException e) {
+              throw new RuntimeException(e);
+            }
+          });
+
+          final lu.forex.system.fx.models.Tick tickToFx = getTickToFx(lastTick.get(), symbol);
+          return new Externalizing(candlesticksMemory.get(), tickToFx);
         })).collect(Collectors.toMap(Externalizing::getLastTick, Externalizing::getCandlesticksMemory, CollectionUtils::union));
   }
 
@@ -117,6 +131,7 @@ public class PreProcessor {
     adxFx.setKeyNDiP(candlestick.getAdx().getKeyNDiP());
     adxFx.setKeyTr1(candlestick.getAdx().getKeyTr1());
     adxFx.setKeyPDm1(candlestick.getAdx().getKeyPDm1());
+    adxFx.setKeyNDm1(candlestick.getAdx().getKeyNDm1());
     adxFx.setKeyDx(candlestick.getAdx().getKeyDx());
     candlestickFx.setAdx(adxFx);
     final lu.forex.system.fx.models.RelativeStrengthIndex rsiFx = new lu.forex.system.fx.models.RelativeStrengthIndex();
