@@ -74,11 +74,13 @@ public class PreProcessor {
   }
 
   private static lu.forex.system.fx.models.@NonNull Tick getTickToFx(final @NonNull Tick tick, final @NonNull Symbol symbol) {
+    log.info("TICK PROCESSOR: {}", tick.toString());
     final lu.forex.system.fx.models.Tick tickFx = new lu.forex.system.fx.models.Tick();
     tickFx.setSymbol(lu.forex.system.fx.enums.Symbol.valueOf(symbol.name()));
     tickFx.setTimestamp(tick.getDateTime());
     tickFx.setBid(tick.getBid());
     tickFx.setAsk(tick.getAsk());
+    log.info("TICK FX: {}", tickFx.toString());
     return tickFx;
   }
 
@@ -132,7 +134,7 @@ public class PreProcessor {
 
   @SneakyThrows
   private static Tick lastTickMemoryExternalizing(final @NonNull File inputFile) {
-    log.info("Printing Last Tick Externalizing");
+    log.info("Last Tick Memory");
     try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile))) {
       final AtomicReference<Tick> tick = new AtomicReference<>(new Tick(LocalDateTime.MIN, BigDecimal.valueOf(-1d), BigDecimal.valueOf(-1d)));
       TickService.getTicks(bufferedReader).forEach(t -> tick.set(t.getKey()));
