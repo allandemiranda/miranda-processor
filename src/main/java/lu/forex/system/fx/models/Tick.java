@@ -15,7 +15,6 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NegativeOrZero;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
