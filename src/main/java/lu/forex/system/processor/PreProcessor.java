@@ -125,6 +125,7 @@ public class PreProcessor {
     rsiFx.setKeyLoss(candlestick.getRsi().getKeyLoss());
     rsiFx.setKeyAverageGain(candlestick.getRsi().getKeyAverageGain());
     rsiFx.setKeyAverageLoss(candlestick.getRsi().getKeyAverageLoss());
+    rsiFx.setKeyRsi(candlestick.getRsi().getKeyRsi());
     candlestickFx.setRsi(rsiFx);
     candlestickFx.setSignalIndicator(lu.forex.system.fx.enums.SignalIndicator.valueOf(candlestick.getSignalIndicator().name()));
     return candlestickFx;
