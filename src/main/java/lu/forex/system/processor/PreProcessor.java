@@ -66,7 +66,7 @@ public class PreProcessor {
             final Symbol symbol = Symbol.valueOf(inputFile.getName().split("_")[0]);
             final Collection<Trade> trades = TradeService.getTrades(inputFile, bufferedReader, timeFrame, symbol);
             printTradesExcel(trades, timeFrame, symbol, inputFolder);
-            return trades.stream().map(trade -> getTradeToFx(trade, symbol, timeFrame));
+            return trades.stream().parallel().map(trade -> getTradeToFx(trade, symbol, timeFrame));
           } catch (IOException e) {
             throw new IllegalStateException(e);
           }
