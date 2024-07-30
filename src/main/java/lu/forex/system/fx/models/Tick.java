@@ -68,8 +68,7 @@ public class Tick implements Serializable {
   @NotNull
   @NegativeOrZero
   public BigDecimal getSpread() {
-    final BigDecimal theSpread = this.getBid().subtract(this.getAsk());
-    return theSpread.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : theSpread.multiply(BigDecimal.valueOf(-1.0));
+    return this.getBid().subtract(this.getAsk());
   }
 
   @Override
