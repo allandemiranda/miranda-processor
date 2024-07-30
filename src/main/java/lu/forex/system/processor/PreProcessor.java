@@ -46,45 +46,58 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class PreProcessor {
 
   public static Map<lu.forex.system.fx.models.Tick, Collection<lu.forex.system.fx.models.Candlestick>> getExternalizingCollection(final @NonNull File inputFolder) {
+    final Collection<TimeFrame> timeFrames = Arrays.stream(TimeFrame.values()).toList();
     return Arrays.stream(Objects.requireNonNull(inputFolder.listFiles())).parallel()
         .filter(file -> Arrays.stream(Symbol.values()).anyMatch(symbol -> symbol.name().equals(file.getName().split("_")[0])))
-        .flatMap(inputFile -> Arrays.stream(TimeFrame.values()).parallel().map(timeFrame -> {
-          final Symbol symbol = Symbol.valueOf(inputFile.getName().split("_")[0]);
+        .flatMap(inputFile -> getTimeFrameExternalizingFunctionCollection(inputFile, timeFrames).stream())
+        .collect(Collectors.toMap(Externalizing::getLastTick, Externalizing::getCandlesticksMemory, CollectionUtils::union));
+  }
 
-          final AtomicReference<Tick> lastTick = new AtomicReference<Tick>();
-          final AtomicReference<List<lu.forex.system.fx.models.Candlestick>> candlesticksMemory = new AtomicReference<>();
+  private static @NonNull Collection<Externalizing> getTimeFrameExternalizingFunctionCollection(final @NonNull File inputFile, final @NonNull Collection<@NonNull TimeFrame> timeFrames) {
+    return timeFrames.parallelStream().map(timeFrame -> {
+      final Symbol symbol = Symbol.valueOf(inputFile.getName().split("_")[0]);
 
-          final Runnable lastTickRunnable = () -> lastTick.set(lastTickMemoryExternalizing(inputFile));
-          final Runnable candlesticksMemoryRunnable = () -> {
-            final Collection<Candlestick> memoryCandlesticks = CandlestickService.getCandlesticksMemory(inputFile, timeFrame, symbol);
-            candlesticksMemory.set(memoryCandlesticks.stream().map(candlestick -> getCandlestickToFx(candlestick, symbol, timeFrame)).toList());
-          };
-          Stream.of(lastTickRunnable, candlesticksMemoryRunnable).parallel().map(Thread::new).peek(Thread::start).forEach(thread -> {
-            try {
-              thread.join();
-            } catch (InterruptedException e) {
-              throw new RuntimeException(e);
-            }
-          });
+      final AtomicReference<Tick> lastTick = new AtomicReference<>();
+      final AtomicReference<List<lu.forex.system.fx.models.Candlestick>> candlesticksMemory = new AtomicReference<>();
 
-          final lu.forex.system.fx.models.Tick tickToFx = getTickToFx(lastTick.get(), symbol);
-          return new Externalizing(candlesticksMemory.get(), tickToFx);
-        })).collect(Collectors.toMap(Externalizing::getLastTick, Externalizing::getCandlesticksMemory, CollectionUtils::union));
+      final Runnable lastTickRunnable = () -> lastTick.set(lastTickMemoryExternalizing(inputFile));
+      final Runnable candlesticksMemoryRunnable = () -> {
+        final Collection<Candlestick> memoryCandlesticks = CandlestickService.getCandlesticksMemory(inputFile, timeFrame, symbol);
+        candlesticksMemory.set(memoryCandlesticks.stream().map(candlestick -> getCandlestickToFx(candlestick, symbol, timeFrame)).toList());
+      };
+      Stream.of(lastTickRunnable, candlesticksMemoryRunnable).parallel().map(Thread::new).peek(Thread::start).forEach(thread -> {
+        try {
+          thread.join();
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          throw new IllegalStateException(e);
+        }
+      });
+
+      final lu.forex.system.fx.models.Tick tickToFx = getTickToFx(lastTick.get(), symbol);
+      return new Externalizing(candlesticksMemory.get(), tickToFx);
+    }).toList();
   }
 
   public static Collection<lu.forex.system.fx.models.Trade> getExternalizingTrades(final @NonNull File inputFolder) {
+    final Collection<TimeFrame> timeFrames = Arrays.stream(TimeFrame.values()).toList();
     return Arrays.stream(Objects.requireNonNull(inputFolder.listFiles())).parallel()
         .filter(file -> Arrays.stream(Symbol.values()).anyMatch(symbol -> symbol.name().equals(file.getName().split("_")[0])))
-        .flatMap(inputFile -> Arrays.stream(TimeFrame.values()).parallel().flatMap(timeFrame -> {
-          try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile))) {
-            final Symbol symbol = Symbol.valueOf(inputFile.getName().split("_")[0]);
-            final Collection<Trade> trades = TradeService.getTrades(inputFile, bufferedReader, timeFrame, symbol);
-            printTradesExcel(trades, timeFrame, symbol, inputFolder);
-            return trades.stream().parallel().map(trade -> getTradeToFx(trade, symbol, timeFrame));
-          } catch (IOException e) {
-            throw new IllegalStateException(e);
-          }
-        })).toList();
+        .flatMap(inputFile -> getTimeFrameStreamFunctionTrades(inputFolder, inputFile, timeFrames).stream()).toList();
+  }
+
+  private static @NonNull Collection<lu.forex.system.fx.models.Trade> getTimeFrameStreamFunctionTrades(final @NonNull File inputFolder, final @NonNull File inputFile,
+      final @NonNull Collection<@NonNull TimeFrame> timeFrames) {
+    return timeFrames.parallelStream().flatMap(timeFrame -> {
+      try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile))) {
+        final Symbol symbol = Symbol.valueOf(inputFile.getName().split("_")[0]);
+        final Collection<Trade> trades = TradeService.getTrades(inputFile, bufferedReader, timeFrame, symbol);
+        printTradesExcel(trades, timeFrame, symbol, inputFolder);
+        return trades.stream().parallel().map(trade -> getTradeToFx(trade, symbol, timeFrame));
+      } catch (IOException e) {
+        throw new IllegalStateException(e);
+      }
+    }).toList();
   }
 
   private static lu.forex.system.fx.models.@NonNull Tick getTickToFx(final @NonNull Tick tick, final @NonNull Symbol symbol) {
