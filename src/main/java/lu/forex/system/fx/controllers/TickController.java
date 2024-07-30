@@ -39,7 +39,7 @@ public class TickController implements TickRequests {
             this.getOpenPositionProvider()
                 .addOpenPosition(trade.id(), signalIndicator.getOrderType(), signalIndicator.getOrderType().equals(OrderType.BUY) ? currentTick.bid() : currentTick.ask(),
                     currentTick.timestamp());
-            return String.format("%s %s %s %s %s", currentTick.timestamp(), trade.timeFrame(), signalIndicator.getOrderType().name(), trade.takeProfit(), trade.stopLoss());
+            return String.format("%s %s %s %s %s", currentTick.timestamp(), trade.timeFrame(), signalIndicator.getOrderType().name(), trade.takeProfit(), trade.stopLoss() * (-1));
           }).reduce("", (a, b) -> {
             if (a.isEmpty()) {
               return b;
