@@ -74,13 +74,11 @@ public class PreProcessor {
   }
 
   private static lu.forex.system.fx.models.@NonNull Tick getTickToFx(final @NonNull Tick tick, final @NonNull Symbol symbol) {
-    log.info("TICK PROCESSOR: {}", tick.toString());
     final lu.forex.system.fx.models.Tick tickFx = new lu.forex.system.fx.models.Tick();
     tickFx.setSymbol(lu.forex.system.fx.enums.Symbol.valueOf(symbol.name()));
     tickFx.setTimestamp(tick.getDateTime());
     tickFx.setBid(tick.getBid());
     tickFx.setAsk(tick.getAsk());
-    log.info("TICK FX: {}", tickFx.toString());
     return tickFx;
   }
 
