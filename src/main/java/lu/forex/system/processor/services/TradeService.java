@@ -12,7 +12,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.EqualsAndHashCode;
@@ -77,8 +77,11 @@ public class TradeService {
     log.info("We have {} pre trades to analise in symbol {} at timeframe {}", timeScopeMapMap.values().stream().mapToInt(m -> m.values().size()).sum(), symbol.name(), timeFrame.name());
 
     final List<Trade> tradeList = timeScopeMapMap.entrySet().parallelStream().map(timeScopeMapEntry -> {
-      final Collection<Trade> tradeCollection = timeScopeMapEntry.getValue().entrySet().parallelStream().map(rangerProfitListEntry -> {
-        final TimeScope timeScope = timeScopeMapEntry.getKey();
+      final TimeScope timeScope = timeScopeMapEntry.getKey();
+
+      Trade trade = null;
+
+      for (final var rangerProfitListEntry : timeScopeMapEntry.getValue().entrySet().stream().sorted(Comparator.comparing(rangerProfitListEntry -> rangerProfitListEntry.getKey().getTakeProfit())).toList()) {
         final RangerProfit rangerProfit = rangerProfitListEntry.getKey();
 
         try (final BufferedReader tickTradeBufferedReader = new BufferedReader(new FileReader(inputFile))) {
@@ -106,12 +109,15 @@ public class TradeService {
         final BigDecimal profitTotal = rangerProfitListEntry.getValue().stream().filter(preTrade -> !OrderStatus.OPEN.equals(preTrade.getOrderStatus())).map(PreTrade::getProfit)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return new Trade(rangerProfit.getStopLoss().intValue(), rangerProfit.getTakeProfit().intValue(), timeScope.getWeek(), timeScope.getHour(), numberPreTradesTotal, numberPreTradesTP,
-            numberPreTradesSL, hitPercentage, profitTotal);
+        if (hitPercentage.compareTo(TP_TARGET) >= 0) {
+          trade = new Trade(rangerProfit.getStopLoss().intValue(), rangerProfit.getTakeProfit().intValue(), timeScope.getWeek(), timeScope.getHour(), numberPreTradesTotal, numberPreTradesTP,
+              numberPreTradesSL, hitPercentage, profitTotal);
+          break;
+        }
+      }
 
-      }).filter(trade -> trade.getHitPercentage().compareTo(TP_TARGET) >= 0).toList();
-      return tradeCollection.stream().min(Comparator.comparingDouble(value -> value.getProfitTotal().doubleValue()));
-    }).filter(Optional::isPresent).map(Optional::get).toList();
+      return trade;
+    }).filter(Objects::nonNull).toList();
     log.info("Created {} trades from {} symbol at timeframe {}", tradeList.size(), symbol.name(), timeFrame.name());
     return tradeList;
   }
