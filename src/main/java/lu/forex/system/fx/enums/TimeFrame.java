@@ -9,11 +9,8 @@ import lombok.NonNull;
 public enum TimeFrame {
   //@formatter:off
   M15(15, Frame.MINUTE),
-  M30(2 * M15.getTimeValue(), Frame.MINUTE),
+  M30(30, Frame.MINUTE),
   H1(1, Frame.HOUR),
-  H2(2 * H1.getTimeValue(), Frame.HOUR),
-  H4(4 * H1.getTimeValue(), Frame.HOUR),
-  H8(8 * H1.getTimeValue(), Frame.HOUR)
   ;
   //@formatter:on
 
