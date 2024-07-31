@@ -89,7 +89,7 @@ public class CandlestickService implements CandlestickProvider {
     final CandlestickBody body = new CandlestickBody();
     body.setHigh(price);
     body.setLow(price);
-    body.setLow(price);
+    body.setOpen(price);
     body.setClose(price);
     candlestick.setBody(body);
 
