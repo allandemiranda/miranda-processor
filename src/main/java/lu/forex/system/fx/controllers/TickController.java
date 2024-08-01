@@ -33,20 +33,20 @@ public class TickController implements TickRequests {
 
   @Override
   public String updateTickAndGetOpenPosition(final @NonNull TickDto currentTick) {
-    final TickDto lastTickDto = this.getTickProvider().getLastTick(currentTick.symbol());
-    if (lastTickDto.timestamp().isBefore(currentTick.timestamp())) {
-      final String mt5Answer = this.getCandlestickProvider().updateAndGetCandlesticksNotNeutral(currentTick).stream()
+    if (this.getTickProvider().getLastTick(currentTick.symbol()).timestamp().isBefore(currentTick.timestamp())) {
+      final TickDto currentTickUpdate = this.getTickProvider().updateTickData(currentTick);
+      return this.getCandlestickProvider().updateAndGetCandlesticksNotNeutral(currentTick).stream()
           .map(candlestickDto -> Pair.of(candlestickDto.signalIndicator(), this.getTradeProvider().getTrade(candlestickDto)))
           .filter(signalIndicatorOptionalPair -> signalIndicatorOptionalPair.getSecond().isPresent()).map(signalIndicatorOptionalPair -> {
             final SignalIndicator signalIndicator = signalIndicatorOptionalPair.getFirst();
             final TradeDto trade = signalIndicatorOptionalPair.getSecond().get();
-            this.getOpenPositionProvider()
-                .addOpenPosition(trade.id(), signalIndicator.getOrderType(), signalIndicator.getOrderType().equals(OrderType.BUY) ? currentTick.bid() : currentTick.ask(),
-                    currentTick.timestamp());
-            if (currentTick.spread().multiply(currentTick.symbol().getPip()).compareTo(BigDecimal.valueOf(trade.stopLoss() * (-1))) > 0) {
+            if (currentTickUpdate.spread().multiply(currentTick.symbol().getPip()).compareTo(BigDecimal.valueOf(trade.stopLoss())) > 0) {
+              this.getOpenPositionProvider()
+                  .addOpenPosition(trade.id(), signalIndicator.getOrderType(), signalIndicator.getOrderType().equals(OrderType.BUY) ? currentTick.bid() : currentTick.ask(),
+                      currentTick.timestamp());
               return String.format("%s %s %s %s %s", currentTick.timestamp(), trade.timeFrame(), signalIndicator.getOrderType().name(), trade.takeProfit(), trade.stopLoss() * (-1));
             } else {
-              log.warn("Spread high to open {}", currentTick.toString());
+              log.warn("Spread high to open {}", currentTickUpdate.toString());
               return null;
             }
           }).filter(Objects::nonNull).reduce("", (a, b) -> {
@@ -58,8 +58,6 @@ public class TickController implements TickRequests {
               return a.concat(",").concat(b);
             }
           });
-      this.getTickProvider().updateTickData(currentTick);
-      return mt5Answer;
     } else {
       throw new TickTimestampOlderException(currentTick.timestamp(), currentTick.symbol().name());
     }

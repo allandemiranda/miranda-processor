@@ -27,19 +27,13 @@ public class TickService implements TickProvider {
   }
 
   @Override
-  public void updateTickData(final @NonNull TickDto currentTick) {
+  public TickDto updateTickData(final @NonNull TickDto currentTick) {
     final Symbol symbol = currentTick.symbol();
     final Tick last = this.getTickRepository().getFirstBySymbol(symbol).orElseThrow(LastTickNotFound::new);
     this.getTickRepository().delete(last);
     final Tick current = this.getTickMapper().toEntity(currentTick);
-    this.getTickRepository().save(current);
-  }
-
-  @Override
-  public TickDto insertInitTick(final TickDto currentTick) {
-    final Tick tick = this.getTickMapper().toEntity(currentTick);
-    final Tick newTick = this.getTickRepository().save(tick);
-    return this.getTickMapper().toDto(newTick);
+    final Tick saved = this.getTickRepository().save(current);
+    return this.getTickMapper().toDto(saved);
   }
 
 }

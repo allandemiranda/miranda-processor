@@ -13,8 +13,5 @@ public interface TickProvider {
 
 
   @Transactional()
-  void updateTickData(final @NotNull TickDto currentTick);
-
-  @Transactional()
-  TickDto insertInitTick(final @NotNull TickDto currentTick);
+  TickDto updateTickData(final @NotNull TickDto currentTick);
 }
