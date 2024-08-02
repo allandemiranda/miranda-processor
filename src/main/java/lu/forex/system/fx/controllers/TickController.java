@@ -59,7 +59,8 @@ public class TickController implements TickRequests {
             }
           });
     } else {
-      throw new TickTimestampOlderException(currentTick.timestamp(), currentTick.symbol().name());
+      // throw new TickTimestampOlderException(currentTick.timestamp(), currentTick.symbol().name());
+      return "";
     }
   }
 }
