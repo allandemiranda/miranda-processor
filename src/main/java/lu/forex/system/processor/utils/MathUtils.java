@@ -39,7 +39,11 @@ public class MathUtils {
   }
 
   public static @NonNull BigDecimal getDivision(final @NonNull BigDecimal dividend, final @NonNull BigDecimal divisor) {
-    return dividend.divide(divisor, SCALE, ROUNDING_MODE);
+    if (divisor.compareTo(BigDecimal.ZERO) == 0) {
+      return BigDecimal.ZERO;
+    } else {
+      return dividend.divide(divisor, SCALE, ROUNDING_MODE);
+    }
   }
 
   public static @NonNull BigDecimal getMultiplication(final @NonNull BigDecimal a, final @NonNull BigDecimal b) {
