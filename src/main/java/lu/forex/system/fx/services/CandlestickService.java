@@ -110,6 +110,11 @@ public class CandlestickService implements CandlestickProvider {
 
   private void updateCandlestickPrice(final @NonNull Candlestick candlestick, final @NonNull BigDecimal price) {
     candlestick.getBody().setClose(price);
+    if(candlestick.getBody().getHigh().compareTo(price) < 0) {
+      candlestick.getBody().setHigh(price);
+    } else if(candlestick.getBody().getLow().compareTo(price) > 0) {
+      candlestick.getBody().setLow(price);
+    }
     this.getCandlestickRepository().save(candlestick);
   }
 
