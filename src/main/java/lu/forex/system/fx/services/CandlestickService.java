@@ -23,8 +23,8 @@ import lu.forex.system.fx.models.CandlestickBody;
 import lu.forex.system.fx.models.RelativeStrengthIndex;
 import lu.forex.system.fx.providers.CandlestickProvider;
 import lu.forex.system.fx.repository.CandlestickRepository;
-import lu.forex.system.fx.utils.MathUtils;
 import lu.forex.system.fx.utils.TimeFrameUtils;
+import lu.forex.system.processor.utils.MathUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -66,8 +66,10 @@ public class CandlestickService implements CandlestickProvider {
 
     final Candlestick currentCandlestick = candlesticks[0];
     final Candlestick lastCandlestick = candlesticks[1];
-    final SignalIndicator realLastSignalIndicator = lastCandlestick.getAdx().getSignalIndicator().equals(lastCandlestick.getRsi().getSignalIndicator()) ? lastCandlestick.getAdx().getSignalIndicator() : SignalIndicator.NEUTRAL;
-    if (currentCandlestick.getAdx().getSignalIndicator().equals(currentCandlestick.getRsi().getSignalIndicator()) && !realLastSignalIndicator.equals(currentCandlestick.getAdx().getSignalIndicator())) {
+    final SignalIndicator realLastSignalIndicator =
+        lastCandlestick.getAdx().getSignalIndicator().equals(lastCandlestick.getRsi().getSignalIndicator()) ? lastCandlestick.getAdx().getSignalIndicator() : SignalIndicator.NEUTRAL;
+    if (currentCandlestick.getAdx().getSignalIndicator().equals(currentCandlestick.getRsi().getSignalIndicator()) && !realLastSignalIndicator.equals(
+        currentCandlestick.getAdx().getSignalIndicator())) {
       currentCandlestick.setSignalIndicator(currentCandlestick.getAdx().getSignalIndicator());
     } else {
       currentCandlestick.setSignalIndicator(SignalIndicator.NEUTRAL);
