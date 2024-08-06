@@ -149,9 +149,9 @@ public class CandlestickService implements CandlestickProvider {
         final BigDecimal rsi = BigDecimal.valueOf(100).subtract(BigDecimal.valueOf(100).divide(BigDecimal.ONE.add(rs), MathUtils.SCALE, MathUtils.ROUNDING_MODE));
         technicalIndicators[0].setKeyRsi(rsi);
         if (rsi.compareTo(RelativeStrengthIndex.OVERBOUGHT) > 0) {
-          technicalIndicators[0].setSignalIndicator(SignalIndicator.BULLISH);
-        } else if (rsi.compareTo(RelativeStrengthIndex.OVERSOLD) < 0) {
           technicalIndicators[0].setSignalIndicator(SignalIndicator.BEARISH);
+        } else if (rsi.compareTo(RelativeStrengthIndex.OVERSOLD) < 0) {
+          technicalIndicators[0].setSignalIndicator(SignalIndicator.BULLISH);
         } else {
           technicalIndicators[0].setSignalIndicator(SignalIndicator.NEUTRAL);
         }
